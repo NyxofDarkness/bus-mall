@@ -7,6 +7,8 @@ Audrena Vacirca
 
 who collaborated
 Code Fellows Class seattle-201d68, 2020
+Rick Shaver, Bellevue, WA
+
 
 which tools are used)
 Javascript, CSS
