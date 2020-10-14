@@ -77,7 +77,6 @@ function handleClick(event) {
     if (chosenTitle === allItems[i].name) {
       allItems[i].votes++;
     }
-
   }
 
   render(imageOneElement);
@@ -95,10 +94,59 @@ function handleClick(event) {
       ulElement.appendChild(liElement);
     }
   }
+  displayChart();
 }
+
 // had to move these to the end because they didn't display!
 document.getElementById('image-container').addEventListener('click', handleClick);
 
 render(imageOneElement);
 render(imageTwoElement);
 render(imageThreeElement);
+
+// iterate over allItems array, create products name array for labels
+
+// same thing but for votes (maybe views too)
+// votes into data below 
+// why is chart undefined? I NEEDED A FUNCTION!
+
+
+function displayChart() {
+  var ctx = document.getElementById('myChart').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'horizontalBar',
+    data: {
+      labels: ['bag', 'banana', 'bathroom', 'boots', 'breakfast', 'bubblegum', 'chair', 'cthulhu', 'dog-duck', 'dragon', 'pen', 'pet-sweep', 'scissors', 'shark', 'sweep', 'tauntaun', 'unicorn', 'usb', 'water-can', 'wine-glass'], // products go here
+      datasets: [{
+        label: '# of Bananas', // this is my title
+        data: [totalVotes], // number of votes
+        backgroundColor: [
+          'rgba(255, 255, 255, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+          'rgba(44, 44, 44, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 6
+      }]
+    },
+    options: {
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    }
+  });
+}
