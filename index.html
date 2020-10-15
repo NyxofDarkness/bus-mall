@@ -1,62 +1,37 @@
 <!DOCTYPE html>
 <html>
 
-<body>
+<head>
+  <title>The Great BusMall</title>
+  <link href="css/reset.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
 
-  <head>
-    <title>The Great Bus Mall</title>
-    <link href='css/reset.css' rel='stylesheet' type='text/css' />
-    <link href='css/style.css' rel='stylesheet' type='text/css' />
-  </head>
+<body>
   <header>
-    <nav>
-      <ol>
-        <li class="navigation"><a href="HOME">HOME</a></li>
-        <li class="navigation"><a href="PRODUCTS">PRODUCTS</a></li>
-        <li class="navigation"><a href="ABOUT">ABOUT</a></li>
-        <li class="navigation"><a href="CONTACT">CONTACT</a></li>
-      </ol>
-    </nav>
-    <h1>The Great Bus Mall</h1>
+    <section id="headerdiv">
+      <h1>The Great, Wonderful, All-Around Fantastic Bus Mall</h1>
+    </section>
   </header>
   <main>
-    <section id="image-container">
-      <!-- <label>
-        <input type="radio" name="test" value="small" checked> -->
-      <img id="image-one" src="" alt="" title="" />
-      <!-- </label> -->
-      <img id="image-two" src="" alt="" title="" />
-      <img id="image-three" src="" alt="" title="" />
-
+    <section id="maindiv">
+      <section id="instructions">
+        <h2>Vote for the Item you'd love to know more about!</h2>
+        <br>
+        <h2>Results will be updated and displayed after each round of voting, and you can see who is in the lead!</h2>
+      </section>
+      <section id="image-container">
+        <img id="imageOneElement" src=" " alt=" " title=" " />
+        <img id="imageTwoElement" src=" " alt=" " title=" " />
+        <img id="imageThreeElement" src=" " alt=" " title=" " />
+      </section>
     </section>
-
-
-    <ul id='results'></ul>
-
-
-    <canvas id="myChart"></canvas>
-
-
-    <p>Prow scuttle parrel provost Sail ho shrouds spirits boom mizzenmast yardarm. Pinnace holystone mizzenmast
-      quarter
-      crow's nest nipperkin grog yardarm hempen halter furl. Swab barque interloper chantey doubloon starboard grog
-      black jack gangway rutters.
-
-      Deadlights jack lad schooner scallywag dance the hempen jig carouser broadside cable strike colors. Bring a
-      spring
-      upon her cable holystone blow the man down spanker Shiver me timbers to go on account lookout wherry doubloon
-      chase. Belay yo-ho-ho keelhaul squiffy black spot yardarm spyglass sheet transom heave to.
-
-      Trysail Sail ho Corsair red ensign hulk smartly boom jib rum gangway. Case shot Shiver me timbers gangplank
-      crack
-      Jennys tea cup ballast Blimey lee snow crow's nest rutters. Fluke jib scourge of the seven seas boatswain
-      schooner
-      gaff booty Jack Tar transom spirits.</p>
   </main>
-  <footer></footer>
+  <canvas id="myChart" width="150" height="50"></canvas>
+  <footer>
 
-  <script src="js/app.js"></script>
-
+  </footer>
+  <script src='js/app.js'></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 
 </body>

@@ -1,125 +1,53 @@
-'use strict'
+`use strict`
+// global variables
 
-var allItems = [];
-var imageOneElement = document.getElementById('image-one');
-var imageTwoElement = document.getElementById('image-two');
-var imageThreeElement = document.getElementById('image-three');
-// var imageContainer = document.getElementById('image-container');
-var recentRandomItems = [];
-var totalVotes = 0;
-
-// Goal: render three pictures to the DOM
-// allow users to vote on which item they like best
-// keep track of votes
-// keep track of views
-
-function Items(filepath, itemName) {
-  this.filepath = filepath;
-  this.name = itemName;
-  this.votes = 0;
-  this.views = 0;
-
-  allItems.push(this);
-}
-// need to add names, and path to img folder directly
-new Items('img/bag.jpg', 'bag');
-new Items('img/banana.jpg', 'banana');
-new Items('img/bathroom.jpg', 'bathroom');
-new Items('img/boots.jpg', 'boots');
-new Items('img/breakfast.jpg', 'breakfast');
-new Items('img/bubblegum.jpg', 'bubblegum');
-new Items('img/chair.jpg', 'chair');
-new Items('img/cthulhu.jpg', 'cthulhu');
-new Items('img/dog-duck.jpg', 'dog-duck');
-new Items('img/dragon.jpg', 'dragon');
-new Items('img/pen.jpg', 'pen');
-new Items('img/pet-sweep.jpg', 'pet-sweep');
-new Items('img/scissors.jpg', 'scissors');
-new Items('img/shark.jpg', 'shark');
-new Items('img/sweep.png', 'sweep');
-new Items('img/tauntaun.jpg', 'tauntaun');
-new Items('img/unicorn.jpg', 'unicorn');
-new Items('img/usb.gif', 'usb');
-new Items('img/water-can.jpg', 'water-can');
-new Items('img/wine-glass.jpg', 'wine-glass');
+var imageOneElement = document.getElementById('imageOneElement');
+var imageTwoElement = document.getElementById('imageTwoElement');
+var imageThreeElement = document.getElementById('imageThreeElement');
+var voteCount = [];
+var voteSeen = [];
+var titles = [];
+var imageArray = [];
+var onlyThreeImages = [imageOneElement, imageTwoElement, imageThreeElement];
+var onlyOnceArray = [];
+var previousImages = [];
+var calculateClicks = 0;
+var imageList = document.getElementById('image-container');
+var ctx = document.getElementById('myChart').getContext('2d');
 
 
-
-function render(imageElement) {
-  var randomIndex = getRandomNumber(0, allItems.length - 1);
-  while (recentRandomItems.includes(randomIndex)) {
-    randomIndex = getRandomNumber(0, allItems.length - 1)
-  }
-
-
-
-  imageElement.src = allItems[randomIndex].filepath;
-  imageElement.alt = allItems[randomIndex].name;
-  imageElement.title = allItems[randomIndex].name;
-
-  allItems[randomIndex].views++;
-
-  if (recentRandomItems.length > 5) {
-    recentRandomItems.shift();
-  }
-}
-
-function getRandomNumber(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-
-
-function handleClick(event) {
-  var chosenTitle = event.target.title;
-
-  for (var i = 0; i < allItems.length; i++) {
-    if (chosenTitle === allItems[i].name) {
-      allItems[i].votes++;
-    }
-  }
-
-  render(imageOneElement);
-  render(imageTwoElement);
-  render(imageThreeElement)
-
-  totalVotes++;
-  if (totalVotes >= 25) {
-    document.getElementById('image-container').removeEventListener('click', handleClick);
-    var ulElement = document.getElementById('results');
-
-    for (var i = 0; i < allItems.length; i++) {
-      var liElement = document.createElement('li');
-      liElement.textContent = `${allItems[i].name} had ${allItems[i].votes} votes and was seen ${allItems[i].views} times.`;
-      ulElement.appendChild(liElement);
-    }
-  }
-  displayChart();
-}
-
-// had to move these to the end because they didn't display!
-document.getElementById('image-container').addEventListener('click', handleClick);
-
-render(imageOneElement);
-render(imageTwoElement);
-render(imageThreeElement);
-
-// iterate over allItems array, create products name array for labels
-
-// same thing but for votes (maybe views too)
-// votes into data below 
-// why is chart undefined? I NEEDED A FUNCTION!
-
+// bar chart data
 
 function displayChart() {
-  var ctx = document.getElementById('myChart').getContext('2d');
+
   var myChart = new Chart(ctx, {
-    type: 'horizontalBar',
+    type: 'Bar',
     data: {
-      labels: ['bag', 'banana', 'bathroom', 'boots', 'breakfast', 'bubblegum', 'chair', 'cthulhu', 'dog-duck', 'dragon', 'pen', 'pet-sweep', 'scissors', 'shark', 'sweep', 'tauntaun', 'unicorn', 'usb', 'water-can', 'wine-glass'], // products go here
+      labels: titles, // products go here
       datasets: [{
-        label: '# of Bananas', // this is my title
-        data: [totalVotes], // number of votes
+        label: 'Number of Votes',
+        data: voteCount, // number of votes
+        backgroundColor: [
+          'rgba(255, 255, 255, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+          'rgba(44, 44, 44, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 6
+      },
+      {
+        label: 'Number of Views',
+        data: voteSeen,
         backgroundColor: [
           'rgba(255, 255, 255, 0.2)',
           'rgba(54, 162, 235, 0.2)',
@@ -138,15 +66,176 @@ function displayChart() {
         ],
         borderWidth: 6
       }]
-    },
-    options: {
-      scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
-          }
-        }]
-      }
     }
   });
 }
+
+// image constructor
+
+function RecentRandomItems(src, name) {
+  this.src = src;
+  this.alt = name;
+  this.title = name;
+  this.seen = 0;
+  this.clicked = 0;
+
+  titles.push(name);
+  imageArray.push(this);
+
+}
+
+// helper functions- random generator and unique images from random images
+
+function getRandomNumber(max) {
+  return Math.floor(Math.random() * (max));
+}
+
+// picks three random images
+function specialThreeImages() {
+  var randomImageIndex = getRandomNumber(imageArray.length);
+  var selectedImages = [];
+  for (var i = 0; i < 3; i++) {
+
+
+    while (onlyOnceArray.includes(randomImageIndex)) {
+      var randomImageIndex = getRandomNumber(imageArray.length);
+    }
+    onlyOnceArray.push(randomImageIndex);
+    selectedImages.push(randomImageIndex);
+  }
+  if (onlyOnceArray.length > 5) {
+    onlyOnceArray.shift();
+  }
+  return selectedImages;
+}
+// for removing items we already chose
+function removeItems() {
+  for (var i = 0; i < 3; i++) {
+    onlyOnceArray.shift();
+  }
+}
+// generates random images in a unique manner
+function getItems() {
+  var selectedImages = specialThreeImages();
+  console.log(selectedImages);
+  for (var i = 0; i < onlyThreeImages.length; i++) {
+    onlyThreeImages[i].src = imageArray[selectedImages[i]].src;
+    onlyThreeImages[i].alt = imageArray[selectedImages[i]].alt;
+    onlyThreeImages[i].title = imageArray[selectedImages[i]].title;
+    imageArray[selectedImages[i]].seen++;
+  }
+}
+
+// event listener for clicks
+
+function handleClick(event) {
+  var votedOn = event.target.title;
+  calculateClicks++;
+
+  for (var i = 0; i < imageArray.length; i++) {
+    if (votedOn === imageArray[i].title) {
+      imageArray[i].clicked++
+    }
+  }
+  console.log('in handle click');
+  totalClicksDone();
+}
+
+//add data to graph-stores them in local storage to keep a log
+
+function results() {
+  for (var i = 0; i < imageArray.length; i++) {
+    voteCount.push(imageArray[i].clicked);
+    voteSeen.push(imageArray[i].seen)
+  }
+}
+
+// things to go in local storage: array of titles= titles, and array of total votes per title=votesArray
+
+function storeInLocalStorage(titles, votesArray, seenArray) {
+  // iterate object to store
+  var votesByTitle = {
+    title: titles,
+    votes: votesArray,
+    seen: seenArray,
+  };
+  // use stringify to move objects from votesByTitle to new variable string to be saved in local storage
+
+  var votesByTitleString = JSON.stringify(votesByTitle);
+
+  //this sets the objects from the new string votesbytitlestring into local storage
+
+  localStorage.setItem('vote-data', votesByTitleString);
+}
+
+//populate bar and reduce clicks to 25 max
+
+function totalClicksDone() {
+  console.log('calculate clicks', calculateClicks);
+  if (calculateClicks === 25) {
+
+    // imageList.removeEventListener('click', handleClick);
+    // it works here but why?
+    chartResults();
+
+    //  this checks local storage, checks if empty-null comes, if containing something it parse the data from string to object.
+
+    var dataInLocalStorage = localStorage.getItem('vote-data');
+
+    if (dataInLocalStorage) {
+      var parseVotes = JSON.parse(dataInLocalStorage);
+      // console.log('old voteCount: ', voteCount);
+      // this for loop increments the voteCount at each index to include local storage data. loops through both, bonding them together, so to speak 
+      for (var i = 0; i < parseVotes.title.length; i++) {
+        voteCount[i] += parseVotes.votes[i];
+        voteSeen[i] += parseVotes.seen[i];
+      }
+      // console.log('new voteCount: ', voteCount);
+      // time to store updated array into local storage. 
+      storeInLocalStorage(titles, voteCount, voteSeen);
+    } else {
+      // this is in case the local storage is empty
+      storeInLocalStorage(titles, voteCount, voteSeen);
+    }
+    // call function to display chart now that we have all the information in the local storage
+    displayChart();
+
+    // this else is in case we have not reached the 25 clicks yet, I wonder if this is a good place to put it? call the functions to remove, and add images from previous work. YAY FUNCTIONS! 
+
+  } else {
+    // removeItems();
+    getItems();
+  }
+}
+
+// putting image instantiation here, as advised..
+
+function constructorItemList() {
+  new RecentRandomItems('img/bag.jpg', 'bag');
+  new RecentRandomItems('img/banana.jpg', 'banana');
+  new RecentRandomItems('img/bathroom.jpg', 'bathroom');
+  new RecentRandomItems('img/boots.jpg', 'boots');
+  new RecentRandomItems('img/breakfast.jpg', 'breakfast');
+  new RecentRandomItems('img/bubblegum.jpg', 'bubblegum');
+  new RecentRandomItems('img/chair.jpg', 'chair');
+  new RecentRandomItems('img/cthulhu.jpg', 'cthulhu');
+  new RecentRandomItems('img/dog-duck.jpg', 'dog-duck');
+  new RecentRandomItems('img/dragon.jpg', 'dragon');
+  new RecentRandomItems('img/pen.jpg', 'pen');
+  new RecentRandomItems('img/pet-sweep.jpg', 'pet-sweep');
+  new RecentRandomItems('img/scissors.jpg', 'scissors');
+  new RecentRandomItems('img/shark.jpg', 'shark');
+  new RecentRandomItems('img/sweep.png', 'sweep');
+  new RecentRandomItems('img/tauntaun.jpg', 'tauntaun');
+  new RecentRandomItems('img/unicorn.jpg', 'unicorn');
+  new RecentRandomItems('img/usb.gif', 'usb');
+  new RecentRandomItems('img/water-can.jpg', 'water-can');
+  new RecentRandomItems('img/wine-glass.jpg', 'wine-glass');
+}
+
+// render the and maybe add to constructor...
+imageList.addEventListener('click', handleClick);
+constructorItemList();
+getItems();
+console.log('completed program');
+// why do I see the constructor objects in their own function? lets see!
