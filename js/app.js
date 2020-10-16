@@ -15,13 +15,85 @@ var calculateClicks = 0;
 var imageList = document.getElementById('image-container');
 var ctx = document.getElementById('myChart').getContext('2d');
 
+// check to see if user is first time
 
-// bar chart data
+if (!localStorage.getItem('products')) {
+  constructorItemList();
+} else {
+  var productsFromLocalStorage = localStorage.getItem('products');
+  var parsedProducts = JSON.parse(productsFromLocalStorage);
+
+  for (var i = 0; i < parsedProducts.length; i++) {
+    new RecentRandomItems(parsedProducts[i].src, parsedProducts[i].alt, parsedProducts[i].seen, parsedProducts[i].clicked);
+  }
+}
+
+
+
+
+// image constructor
+
+function RecentRandomItems(src, name) {
+  this.src = src;
+  this.alt = name;
+  this.title = name;
+  this.seen = 0;
+  this.clicked = 0;
+
+  titles.push(name);
+  imageArray.push(this);
+
+}
+
+// helper functions- random generator and unique images from random images
+
+function getRandomNumber(max) {
+  return Math.floor(Math.random() * (max));
+}
+
+// picks three random images
+function specialThreeImages() {
+  var randomImageIndex = getRandomNumber(imageArray.length);
+  var selectedImages = [];
+  while (onlyOnceArray.length > 2) {
+    onlyOnceArray.shift();
+  }
+
+  for (var i = 0; i < 3; i++) {
+
+
+    while (onlyOnceArray.includes(randomImageIndex)) {
+      randomImageIndex = getRandomNumber(imageArray.length);
+    }
+    onlyOnceArray.push(randomImageIndex);
+    selectedImages.push(randomImageIndex);
+    console.log('onlyOnceArray:', onlyOnceArray);
+    console.log('selectedImagesArray:', selectedImages);
+  }
+
+  return selectedImages;
+}
+function removeItems() {
+  for (var i = 0; i < 3; i++) {
+    onlyOnceArray.shift();
+  }
+}
+// generates random images in a unique manner
+function getItems() {
+  var selectedImages = specialThreeImages();
+  // console.log(selectedImages);
+  for (var i = 0; i < onlyThreeImages.length; i++) {
+    onlyThreeImages[i].src = imageArray[selectedImages[i]].src;
+    onlyThreeImages[i].alt = imageArray[selectedImages[i]].alt;
+    onlyThreeImages[i].title = imageArray[selectedImages[i]].title;
+    imageArray[selectedImages[i]].seen++;
+  }
+}
 
 function displayChart() {
 
   var myChart = new Chart(ctx, {
-    type: 'Bar',
+    type: 'bar',
     data: {
       labels: titles, // products go here
       datasets: [{
@@ -70,62 +142,6 @@ function displayChart() {
   });
 }
 
-// image constructor
-
-function RecentRandomItems(src, name) {
-  this.src = src;
-  this.alt = name;
-  this.title = name;
-  this.seen = 0;
-  this.clicked = 0;
-
-  titles.push(name);
-  imageArray.push(this);
-
-}
-
-// helper functions- random generator and unique images from random images
-
-function getRandomNumber(max) {
-  return Math.floor(Math.random() * (max));
-}
-
-// picks three random images
-function specialThreeImages() {
-  var randomImageIndex = getRandomNumber(imageArray.length);
-  var selectedImages = [];
-  for (var i = 0; i < 3; i++) {
-
-
-    while (onlyOnceArray.includes(randomImageIndex)) {
-      var randomImageIndex = getRandomNumber(imageArray.length);
-    }
-    onlyOnceArray.push(randomImageIndex);
-    selectedImages.push(randomImageIndex);
-  }
-  if (onlyOnceArray.length > 5) {
-    onlyOnceArray.shift();
-  }
-  return selectedImages;
-}
-// for removing items we already chose
-function removeItems() {
-  for (var i = 0; i < 3; i++) {
-    onlyOnceArray.shift();
-  }
-}
-// generates random images in a unique manner
-function getItems() {
-  var selectedImages = specialThreeImages();
-  console.log(selectedImages);
-  for (var i = 0; i < onlyThreeImages.length; i++) {
-    onlyThreeImages[i].src = imageArray[selectedImages[i]].src;
-    onlyThreeImages[i].alt = imageArray[selectedImages[i]].alt;
-    onlyThreeImages[i].title = imageArray[selectedImages[i]].title;
-    imageArray[selectedImages[i]].seen++;
-  }
-}
-
 // event listener for clicks
 
 function handleClick(event) {
@@ -137,7 +153,7 @@ function handleClick(event) {
       imageArray[i].clicked++
     }
   }
-  console.log('in handle click');
+  console.log(totalClicksDone);
   totalClicksDone();
 }
 
@@ -149,64 +165,47 @@ function results() {
     voteSeen.push(imageArray[i].seen)
   }
 }
-
-// things to go in local storage: array of titles= titles, and array of total votes per title=votesArray
-
-function storeInLocalStorage(titles, votesArray, seenArray) {
-  // iterate object to store
-  var votesByTitle = {
-    title: titles,
-    votes: votesArray,
-    seen: seenArray,
-  };
-  // use stringify to move objects from votesByTitle to new variable string to be saved in local storage
-
-  var votesByTitleString = JSON.stringify(votesByTitle);
-
-  //this sets the objects from the new string votesbytitlestring into local storage
-
-  localStorage.setItem('vote-data', votesByTitleString);
-}
-
 //populate bar and reduce clicks to 25 max
-
 function totalClicksDone() {
-  console.log('calculate clicks', calculateClicks);
+
   if (calculateClicks === 25) {
 
     // imageList.removeEventListener('click', handleClick);
     // it works here but why?
-    chartResults();
-
-    //  this checks local storage, checks if empty-null comes, if containing something it parse the data from string to object.
-
-    var dataInLocalStorage = localStorage.getItem('vote-data');
-
-    if (dataInLocalStorage) {
-      var parseVotes = JSON.parse(dataInLocalStorage);
-      // console.log('old voteCount: ', voteCount);
-      // this for loop increments the voteCount at each index to include local storage data. loops through both, bonding them together, so to speak 
-      for (var i = 0; i < parseVotes.title.length; i++) {
-        voteCount[i] += parseVotes.votes[i];
-        voteSeen[i] += parseVotes.seen[i];
-      }
-      // console.log('new voteCount: ', voteCount);
-      // time to store updated array into local storage. 
-      storeInLocalStorage(titles, voteCount, voteSeen);
-    } else {
-      // this is in case the local storage is empty
-      storeInLocalStorage(titles, voteCount, voteSeen);
-    }
-    // call function to display chart now that we have all the information in the local storage
+    results();
     displayChart();
+
+    // put the array in local storage
+    var stringifedProducts = JSON.stringify(imageArray);
+    localStorage.setItem('products', stringifedProducts);
 
     // this else is in case we have not reached the 25 clicks yet, I wonder if this is a good place to put it? call the functions to remove, and add images from previous work. YAY FUNCTIONS! 
 
   } else {
-    // removeItems();
     getItems();
   }
 }
+
+// // things to go in local storage: array of titles= titles, and array of total votes per title=votesArray
+
+// function storeInLocalStorage(titles, votesArray, seenArray) {
+//   // iterate object to store
+//   var votesByTitle = {
+//     title: titles,
+//     votes: votesArray,
+//     seen: seenArray,
+//   };
+//   // use stringify to move objects from votesByTitle to new variable string to be saved in local storage
+
+//   var votesByTitleString = JSON.stringify(votesByTitle);
+
+//   //this sets the objects from the new string // votesbytitlestring into local storage
+
+//   localStorage.setItem('vote-data', votesByTitleString);
+// }
+
+
+
 
 // putting image instantiation here, as advised..
 
@@ -235,7 +234,7 @@ function constructorItemList() {
 
 // render the and maybe add to constructor...
 imageList.addEventListener('click', handleClick);
-constructorItemList();
+// constructorItemList();
 getItems();
-console.log('completed program');
-// why do I see the constructor objects in their own function? lets see!
+// console.log('completed program');
+// why do I see the constructor objects in their own function? lets see
