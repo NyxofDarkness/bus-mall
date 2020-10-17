@@ -1,5 +1,42 @@
+.image-container{
+  text-align: center;
+}
+.imageOneElement{
+float: left;
+
+}
+.imageTwoElement{
+margin-left: 60px;
+}
+.imageThreeElement{
+margin-left: 60px;
+
+}
+
 img {
 height: 15em;
 width: 15em;
-border: dotted color blueviolet 5px;
+padding: 150px;
+background-color: blueviolet;
+}
+
+h1 {
+font-weight: 500;
+font-size: 50px;
+font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+text-align: center;
+border: dotted blueviolet 20px;
+color:blue
+
+}
+
+h2 {
+  font-size: 150px;
+  text-align: center;
+ color: navajowhite
+
+}
+body{
+  background-color: lightseagreen;
+
 }
